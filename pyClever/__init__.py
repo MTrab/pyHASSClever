@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from .locations import CleverLocations
 
+
 class Clever:
     """
     "Reverse engineered" lookup for charging points from Clever and their availability.
@@ -21,6 +22,6 @@ class Clever:
         """Returns all locations if data is available."""
         return self._locations.all_locations
 
-    def get_location_by_id(self, location_id:str) -> str:
+    def get_location_by_id(self, location_id: str) -> str:
         """Get location by location ID."""
         return self._locations.get_location_by_id(location_id)

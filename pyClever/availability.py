@@ -5,9 +5,10 @@ import requests
 
 from .const import BASE_URL
 
+
 class CleverAvailability:
     """Clever availability lookup."""
 
-    def __init__(self,chargepoints:list) -> None:
+    def __init__(self, chargepoints: list) -> None:
         """Initialize the availability lookup."""
         self.chargepoints = chargepoints
