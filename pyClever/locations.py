@@ -99,7 +99,9 @@ class CleverLocations:
         """
         Find location UID by address.
         Address need to be in the format "Street number, zipcode"
-        Example: "Gasværksvej 5, 8660"
+        Example 1: "Gasværksvej 5, 8660 Skanderborg"
+        Example 2: "Gasværksvej 5, 8660"
+        Example 3: "Gasværksvej 5, Skanderborg"
         """
         try:
             addr = address.strip().split(",")
@@ -110,9 +112,9 @@ class CleverLocations:
 
             for dataset in self._locations.items():
                 for location in dataset[1].items():
-                    if (
-                        location[1]["address"]["address"].lower() == street
-                        and location[1]["address"]["postalCode"].lower() == zipcode
+                    if location[1]["address"]["address"].lower() == street and (
+                        location[1]["address"]["postalCode"].lower() == zipcode
+                        or location[1]["address"]["city"].lower() == zipcode.lower()
                     ):
                         return location[0]
         except:
@@ -135,15 +137,11 @@ class CleverLocations:
         for connector in self._location["evses"][evseId]["connectors"]:
             sockets.update({"connections": sockets["connections"] + 1})
             if (
-                not self._location["evses"][evseId]["connectors"][connector][
-                    "plugType"
-                ]
+                not self._location["evses"][evseId]["connectors"][connector]["plugType"]
                 in sockets["socket_types"]
             ):
                 sockets["socket_types"].append(
-                    self._location["evses"][evseId]["connectors"][connector][
-                        "plugType"
-                    ]
+                    self._location["evses"][evseId]["connectors"][connector]["plugType"]
                 )
 
         return sockets

@@ -72,9 +72,13 @@ class Clever:
         return all_sockets
 
     @property
-    def directions(self) -> str:
+    def directions(self) -> str | None:
         """Return directions for the location."""
-        return self._location.location["directions"]["da"]
+        return (
+            self._location.location["directions"]["da"]
+            if "directions" in self._location.location
+            else None
+        )
 
     @property
     def address(self) -> dict:
