@@ -9,10 +9,16 @@ from .const import BASE_URL
 class CleverLocations:
     """Clever location lookup."""
 
-    def __init__(self) -> None:
+    def __init__(self, identifier: str) -> None:
         """Initialize the location lookup."""
         self._locations: str | None = None
         self._last_refresh: str = None
+        self._identifier = identifier
+        self._uuid = None
+        self._locations = self._get_all_locations()
+        self._location = self._get_location()
+        self._cp_ident = self._get_location_identifier()
+        self._total_sockets = self._get_total_sockets()
 
     def _get_all_locations(self) -> str:
         """Fetch all locations - BE AWARE LARGE RESULT SET."""
@@ -24,34 +30,45 @@ class CleverLocations:
             return None
 
     @property
+    def total_sockets(self) -> int:
+        """Get the total number of sockets at this location."""
+        return self._total_sockets
+
+    @property
+    def location(self) -> str:
+        """Get the location data."""
+        return self._location
+
+    @property
     def all_locations(self) -> str:
         """Return all locations."""
-        if isinstance(self._locations, type(None)):
-            self._locations = self._get_all_locations()
-
         return self._locations
 
-    def get_location(self, identifier: str, only_uid: bool = False) -> str:
+    @property
+    def uuid(self) -> str:
+        """Return UUID of the location."""
+        return self._uuid
+
+    @property
+    def chargepoint_identifiers(self) -> list:
+        """Return the identifier(s) for the chargepoint(s)"""
+        return self._cp_ident
+
+    def _get_location(self) -> str:
         """Get location."""
-        if isinstance(self._locations, type(None)):
-            self._locations = self._get_all_locations()
+        self._uuid = self._get_location_uid_by_address(self._identifier)
+        if isinstance(self._uuid, type(None)):
+            self._uuid = self._get_location_uid_from_id(self._identifier)
 
-        uid = self._get_location_uid_by_address(identifier)
-        if isinstance(uid, type(None)):
-            uid = self._get_location_uid_from_id(identifier)
+        return (
+            self._get_location_by_uid(self._uuid)
+            if not isinstance(self._uuid, type(None))
+            else self._get_location_by_uid(self._identifier)
+        )
 
-        if only_uid:
-            return uid if not isinstance(uid, type(None)) else identifier
-        else:
-            return (
-                self._get_location_by_uid(uid)
-                if not isinstance(uid, type(None))
-                else self._get_location_by_uid(identifier)
-            )
-
-    def get_location_identifier(self, uid: str) -> list:
+    def _get_location_identifier(self) -> list:
         """Get the location identifier(s) for this location."""
-        location = self._get_location_by_uid(uid)
+        location = self._get_location_by_uid(self._uuid)
         identifiers = []
         for identifier in location["evses"]:
             identifiers.append(identifier)
@@ -102,3 +119,31 @@ class CleverLocations:
             return None
 
         return None
+
+    def _get_total_sockets(self) -> int:
+        """Get total number of sockets for this location."""
+        total_connections = 0
+        for evse in self._location["evses"]:
+            for _ in self._location["evses"][evse]["connectors"]:
+                total_connections += 1
+
+        return total_connections
+
+    def get_sockets(self, evseId: str) -> int:
+        """Get the number of sockets by ID."""
+        sockets = {"connections": 0, "socket_types": []}
+        for connector in self._location["evses"][evseId]["connectors"]:
+            sockets.update({"connections": sockets["connections"] + 1})
+            if (
+                not self._location["evses"][evseId]["connectors"][connector][
+                    "plugType"
+                ]
+                in sockets["socket_types"]
+            ):
+                sockets["socket_types"].append(
+                    self._location["evses"][evseId]["connectors"][connector][
+                        "plugType"
+                    ]
+                )
+
+        return sockets

@@ -35,28 +35,29 @@ class CleverAvailability:
 
         return filtered_points
 
-    @property
-    def total(self) -> int:
-        """Get total number of chargers."""
-        return len(self._chargepoints)
-
-    @property
-    def available(self) -> int:
+    def available(self, cp_weights: dict) -> int:
         """Get number of available chargers."""
+        if len(self._chargepoints) == 0:
+            # Couldn't get detailed info, perhaps this chargepoint is private?
+            return -1
+
         cnt = 0
         for cp in self._chargepoints:
             if cp["status"] == "Available":
-                cnt += 1
+                cnt += cp_weights[cp["evseId"]]["connections"]
 
         return cnt
 
-    @property
-    def occupied(self) -> int:
+    def occupied(self, cp_weights: dict) -> int:
         """Get number of occupied chargers."""
+        if len(self._chargepoints) == 0:
+            # Couldn't get detailed info, perhaps this chargepoint is private?
+            return -1
+
         cnt = 0
         for cp in self._chargepoints:
             if cp["status"] == "Occupied":
-                cnt += 1
+                cnt += cp_weights[cp["evseId"]]["connections"]
 
         return cnt
 
