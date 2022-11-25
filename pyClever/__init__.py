@@ -17,17 +17,11 @@ class Clever:
         self._last_location_refresh = None
         self._last_availability_refresh = None
         self._identifier = identifier
+        self._location = None
+        self._cp_weights = {}
+        self.chargepoints = None
 
-        self._location = CleverLocations(identifier)
-        if not isinstance(identifier, type(None)):
-            self.chargepoints = CleverAvailability(
-                self._location.chargepoint_identifiers
-            )
-
-            self._cp_weights = {}
-
-            for cp in self._location.chargepoint_identifiers:
-                self._cp_weights.update({cp: self._location.get_sockets(cp)})
+        self.update()
 
     @property
     def all_locations(self) -> str:
@@ -116,3 +110,16 @@ class Clever:
         coords = self._location.location["coordinates"]
         coords.pop("quality")
         return coords
+
+    def update(self) -> None:
+        """Update the states."""
+        self._location = CleverLocations(self._identifier)
+        if not isinstance(self._identifier, type(None)):
+            self.chargepoints = CleverAvailability(
+                self._location.chargepoint_identifiers
+            )
+
+            self._cp_weights = {}
+
+            for cp in self._location.chargepoint_identifiers:
+                self._cp_weights.update({cp: self._location.get_sockets(cp)})
