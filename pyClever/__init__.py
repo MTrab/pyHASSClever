@@ -12,18 +12,19 @@ class Clever:
     Whenever Clever changes something, this module WILL break!
     """
 
-    def __init__(self, identifier: str) -> None:
+    def __init__(self, identifier: str | None = None) -> None:
         """Initialize the handler for Clever lookup."""
         self._last_location_refresh = None
         self._last_availability_refresh = None
 
         self._location = CleverLocations(identifier)
-        self.chargepoints = CleverAvailability(self._location.chargepoint_identifiers)
+        if not isinstance(identifier,type(None)):
+            self.chargepoints = CleverAvailability(self._location.chargepoint_identifiers)
 
-        self._cp_weights = {}
+            self._cp_weights = {}
 
-        for cp in self._location.chargepoint_identifiers:
-            self._cp_weights.update({cp: self._location.get_sockets(cp)})
+            for cp in self._location.chargepoint_identifiers:
+                self._cp_weights.update({cp: self._location.get_sockets(cp)})
 
     @property
     def all_locations(self) -> str:

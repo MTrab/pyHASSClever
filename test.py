@@ -2,9 +2,9 @@ from pyClever import Clever
 
 # addr = "Center Alle 1, 7400"
 # addr = "Marsvej 43, 8960"
-# addr = "Gasværksvej 5, 8660"
+addr = "Gasværksvej 5, 8660"
 # addr = "Lerchesvej 9, Svendborg"
-addr = "Nowhere 1, Unknown"
+# addr = "Nowhere 1, Unknown"
 
 if __name__ == "__main__":
     clever = Clever(addr)
