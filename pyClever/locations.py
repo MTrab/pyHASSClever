@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import requests
 
+from .exceptions import UnknownLocation
+
 from .const import BASE_URL
 
 
@@ -17,6 +19,10 @@ class CleverLocations:
         self._uuid = None
         self._locations = self._get_all_locations()
         self._location = self._get_location()
+
+        if isinstance(self._location,type(None)):
+            raise UnknownLocation("The specified address was not found.")
+
         self._cp_ident = self._get_location_identifier()
         self._total_sockets = self._get_total_sockets()
 
