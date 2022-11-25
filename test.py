@@ -7,7 +7,7 @@ addr = "Gasværksvej 5, 8660"
 # addr = "Nowhere 1, Unknown"
 
 if __name__ == "__main__":
-    clever = Clever(addr)
+    clever = Clever()
 
     total = clever.chargepoint_total
     available = clever.chargepoint_available

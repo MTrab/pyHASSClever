@@ -11,17 +11,17 @@ from .const import BASE_URL
 class CleverLocations:
     """Clever location lookup."""
 
-    def __init__(self, identifier: str|None) -> None:
+    def __init__(self, identifier: str | None) -> None:
         """Initialize the location lookup."""
         self._locations: str | None = None
         self._last_refresh: str = None
         self._identifier = identifier
         self._uuid = None
         self._locations = self._get_all_locations()
-        if not isinstance(identifier,type(None)):
+        if not isinstance(identifier, type(None)):
             self._location = self._get_location()
 
-            if isinstance(self._location,type(None)):
+            if isinstance(self._location, type(None)):
                 raise UnknownLocation("The specified address was not found.")
 
             self._cp_ident = self._get_location_identifier()
