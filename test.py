@@ -1,4 +1,4 @@
-from pyClever import Clever
+from pyHASSClever import Clever
 
 # addr = "Center Alle 1, 7400"
 # addr = "Marsvej 43, 8960"
