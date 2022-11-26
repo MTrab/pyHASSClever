@@ -26,6 +26,7 @@ class CleverLocations:
 
             self._cp_ident = self._get_location_identifier()
             self._total_sockets = self._get_total_sockets()
+            self._total_sockets_per_socket_type = self._get_total_sockets(True)
 
     def _get_all_locations(self) -> str:
         """Fetch all locations - BE AWARE LARGE RESULT SET."""
@@ -40,6 +41,11 @@ class CleverLocations:
     def total_sockets(self) -> int:
         """Get the total number of sockets at this location."""
         return self._total_sockets
+
+    @property
+    def total_sockets_per_socket_type(self) -> dict:
+        """Get the total number of sockets at this location per socket type."""
+        return self._total_sockets_per_socket_type
 
     @property
     def location(self) -> str:
@@ -129,18 +135,45 @@ class CleverLocations:
 
         return None
 
-    def _get_total_sockets(self) -> int:
+    def _get_total_sockets(self, socket_type: bool = False) -> int | dict:
         """Get total number of sockets for this location."""
-        total_connections = 0
-        for evse in self._location["evses"]:
-            for _ in self._location["evses"][evse]["connectors"]:
-                total_connections += 1
+        if socket_type:
+            total_connections = {}
+            for evse in self._location["evses"]:
+                for connector in self._location["evses"][evse]["connectors"]:
+                    if (
+                        not self._location["evses"][evse]["connectors"][connector][
+                            "plugType"
+                        ]
+                        in total_connections
+                    ):
+                        total_connections.update(
+                            {
+                                self._location["evses"][evse]["connectors"][connector][
+                                    "plugType"
+                                ]: 0
+                            }
+                        )
+                    total_connections[
+                        self._location["evses"][evse]["connectors"][connector][
+                            "plugType"
+                        ]
+                    ] += 1
+
+        else:
+            total_connections = 0
+            for evse in self._location["evses"]:
+                for _ in self._location["evses"][evse]["connectors"]:
+                    total_connections += 1
 
         return total_connections
 
     def get_sockets(self, evseId: str) -> int:
         """Get the number of sockets by ID."""
-        sockets = {"connections": 0, "socket_types": []}
+        sockets = {
+            "connections": 0,
+            "socket_types": [],
+        }
         for connector in self._location["evses"][evseId]["connectors"]:
             sockets.update({"connections": sockets["connections"] + 1})
             if (

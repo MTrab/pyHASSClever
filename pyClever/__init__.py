@@ -43,6 +43,13 @@ class Clever:
         return self._location.total_sockets
 
     @property
+    def chargepoint_total_per_socket_type(self) -> int:
+        """Get total number of chargepoints."""
+        if isinstance(self._identifier, type(None)):
+            return None
+        return self._location.total_sockets_per_socket_type
+
+    @property
     def chargepoint_available(self) -> int:
         """Get total number of available chargepoints."""
         if isinstance(self._identifier, type(None)):
@@ -50,11 +57,25 @@ class Clever:
         return self.chargepoints.available(self._cp_weights)
 
     @property
+    def chargepoint_available_per_socket_type(self) -> int:
+        """Get total number of available chargepoints."""
+        if isinstance(self._identifier, type(None)):
+            return None
+        return self.chargepoints.available(self._cp_weights, True)
+
+    @property
     def chargepoint_occupied(self) -> int:
         """Get total number of occupied chargepoints."""
         if isinstance(self._identifier, type(None)):
             return None
         return self.chargepoints.occupied(self._cp_weights)
+
+    @property
+    def chargepoint_occupied_per_socket_type(self) -> int:
+        """Get total number of occupied chargepoints."""
+        if isinstance(self._identifier, type(None)):
+            return None
+        return self.chargepoints.occupied(self._cp_weights, True)
 
     @property
     def location(self) -> str:

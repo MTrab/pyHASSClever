@@ -35,31 +35,56 @@ class CleverAvailability:
 
         return filtered_points
 
-    def available(self, cp_weights: dict) -> int:
+    def available(self, cp_weights: dict, socket_type: bool = False) -> int | dict:
         """Get number of available chargers."""
         if len(self._chargepoints) == 0:
             # Couldn't get detailed info, perhaps this chargepoint is private?
             return -1
 
-        cnt = 0
-        for cp in self._chargepoints:
-            if cp["status"] == "Available":
-                cnt += cp_weights[cp["evseId"]]["connections"]
+        if socket_type:
+            available_connections = {}
+            for cp in self._chargepoints:
+                for connector in cp_weights[cp["evseId"]]["socket_types"]:
+                    if connector not in available_connections:
+                        available_connections.update({connector: 0})
 
-        return cnt
+                    if cp["status"] == "Available":
+                        available_connections[connector] += 1
 
-    def occupied(self, cp_weights: dict) -> int:
+            return available_connections
+        else:
+            cnt = 0
+            for cp in self._chargepoints:
+                if cp["status"] == "Available":
+                    cnt += cp_weights[cp["evseId"]]["connections"]
+
+            return cnt
+
+    def occupied(self, cp_weights: dict, socket_type: bool = False) -> int|dict:
         """Get number of occupied chargers."""
         if len(self._chargepoints) == 0:
             # Couldn't get detailed info, perhaps this chargepoint is private?
             return -1
 
-        cnt = 0
-        for cp in self._chargepoints:
-            if cp["status"] == "Occupied":
-                cnt += cp_weights[cp["evseId"]]["connections"]
+        if socket_type:
+            occupied_connections = {}
+            for cp in self._chargepoints:
+                for connector in cp_weights[cp["evseId"]]["socket_types"]:
+                    if connector not in occupied_connections:
+                        occupied_connections.update({connector: 0})
 
-        return cnt
+                    if cp["status"] == "Occupied":
+                        occupied_connections[connector] += 1
+
+            return occupied_connections
+
+        else:
+            cnt = 0
+            for cp in self._chargepoints:
+                if cp["status"] == "Occupied":
+                    cnt += cp_weights[cp["evseId"]]["connections"]
+
+            return cnt
 
     def get_chargepoint_detail(self, chargepoint_id: str) -> str:
         """Get the detailed info for a specific chargepoint."""
